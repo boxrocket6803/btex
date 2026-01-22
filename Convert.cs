@@ -13,10 +13,11 @@ public class Convert {
 		public virtual void Read(string path) { }
 		public virtual byte[] LoadByte(int channels) => null;
 		public virtual uint[] LoadUint(int channels) => null;
-		public Texture CreateTexture() => new() {
+		public Texture CreateTexture(Texture.Format format) => new() {
 			Width = Width,
 			Height = Height,
-			Depth = Depth
+			Depth = Depth,
+			Type = format
 		};
 	}
 
@@ -69,10 +70,10 @@ public class Convert {
 			return;
 		}
 		inst.Read(input);
-		var t = inst.CreateTexture();
+		var t = inst.CreateTexture(format);
 		using var f = new BinaryWriter(File.OpenWrite($"{input.Split('.').First()}.btex"));
-		Header(f, t, format);
-		switch (format) {
+		Header(f, t);
+		switch (t.Type) {
 			case Texture.Format.rgba8888:
 				WriteByteData(f, t, inst.LoadByte(4), 4);
 				break;
@@ -87,9 +88,9 @@ public class Convert {
 				break;
 		}
 	}
-	private static void Header(BinaryWriter f, Texture t, Texture.Format format) {
+	private static void Header(BinaryWriter f, Texture t) {
 		f.Write("btex".ToArray());
-		f.Write((byte)format);
+		f.Write((byte)t.Type);
 		f.Write((ushort)t.Width);
 		f.Write((ushort)t.Height);
 		f.Write((ushort)t.Depth);
