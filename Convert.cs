@@ -148,5 +148,7 @@ public class Convert {
 				}
 			}
 		}
+		if (last != -1)
+			f.Write(run);
 	}
 }

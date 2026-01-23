@@ -31,16 +31,18 @@
 		var d = new T[Width * Height * Depth * channels];
 		var w = 0;
 		var c = new object[GetChannelCount(Type)];
+		var run = 0;
 		for (var z = 0; z < Depth; z++) {
 			for (var y = 0; y < Height; y++) {
 				for (var x = 0; x < Width; x++) {
-					for (var ch = 0; ch < c.Length; ch++)
-						c[ch] = Type == Format.g32 ? r.ReadUInt32() : r.ReadByte();
-					var run = r.ReadByte() + 1;
-					for (var i = 0; i < run; i++) {
-						for (var ch = 0; ch < channels; ch++)
-							d[w++] = (T)(ch < c.Length ? c[ch] : (ch < 4 ? 0 : 1));
+					if (run <= 0) {
+						for (var ch = 0; ch < c.Length; ch++)
+							c[ch] = Type == Format.g32 ? r.ReadUInt32() : r.ReadByte();
+						run = r.ReadByte() + 1;
 					}
+					for (var ch = 0; ch < channels; ch++)
+						d[w++] = (T)(ch < c.Length ? c[ch] : (ch < 4 ? 0 : 1));
+					run--;
 				}
 			}
 		}
