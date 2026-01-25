@@ -1,4 +1,32 @@
-﻿public partial class Texture {
+﻿using System.Numerics;
+
+public class Texture<T> : Texture {
+	public int Channels {get; set;}
+	public T[] Pixels {get; set;}
+
+	public T[] Sample(Vector2 uv) {
+		var x = (int)(Math.Clamp(uv.X, 0, 1) * Width);
+		var y = (int)(Math.Clamp(uv.Y, 0, 1) * Height);
+		var i = y * Width + x;
+		i *= Channels;
+		var r = new T[Channels];
+		for (var c = 0; c < Channels; c++)
+			r[c] = Pixels[i+c];
+		return r;
+	}
+
+	public static Texture<T> Load(Stream s, int channels) {
+		if (s is null)
+			return null;
+		var r = new BinaryReader(s);
+		var t = new Texture<T>() {Channels = channels};
+		t.ReadHeader(r);
+		t.Pixels = t.ReadData<T>(r, channels);
+		return t;
+	}
+}
+
+public partial class Texture {
 	public enum Format {
 		rgba8888 = 0,
 		rgb888 = 1,
@@ -9,9 +37,10 @@
 	public Format Type;
 	public uint Width;
 	public uint Height;
+	public Vector2 Size => new(Width, Height);
 	public uint Depth;
 
-	private int GetChannelCount(Format f) {
+	private static int GetChannelCount(Format f) {
 		switch (f) {
 			case Format.rgba8888:
 				return 4;
