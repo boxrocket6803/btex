@@ -1,4 +1,6 @@
-﻿using TinyEXR;
+﻿namespace btex;
+
+using TinyEXR;
 
 [Convert.Association(["exr"])]
 public class OpenEXR : Convert.Source {

@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿namespace btex;
+
+using System.Reflection;
 
 public class Convert {
 	[AttributeUsage(AttributeTargets.Class)]
