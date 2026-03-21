@@ -22,12 +22,26 @@ public class Convert {
 		};
 	}
 
+	public static bool Supports(string file) {
+		foreach (var type in Assembly.GetAssembly(typeof(Source)).GetTypes()) {
+			if (!type.IsAssignableTo(typeof(Source)))
+				continue;
+			var assoc = type.GetCustomAttribute<AssociationAttribute>();
+			if (assoc is null)
+				continue;
+			if (!assoc.Types.Contains(file.Split('.').Last()))
+				continue;
+			return true;
+		}
+		return false;
+	}
 	public static void Main(string[] args) {
 		List<string> argacc = [.. args];
 		Console.WriteLine("-- btex converter utility --");
-		if (argacc.Count == 0)
+		if (argacc.Count == 0) {
 			Console.WriteLine("cmd args");
 			Console.WriteLine(" <input file> <btex format>");
+		}
 		if (argacc.Count < 2) {
 			Console.WriteLine("btex formats");
 			foreach (var format in Enum.GetValues<Texture.Format>())
