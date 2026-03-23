@@ -35,7 +35,8 @@ public class Convert {
 		}
 		return false;
 	}
-	public static void Main(string[] args) {
+	public static void Main(string[] args) => Run(args);
+	public static string Run(string[] args) {
 		List<string> argacc = [.. args];
 		Console.WriteLine("-- btex converter utility --");
 		if (argacc.Count == 0) {
@@ -64,9 +65,9 @@ public class Convert {
 			var f = Console.ReadLine().Trim();
 			argacc.Insert(1, f);
 		}
-		Write(argacc[0], Enum.Parse<Texture.Format>(argacc[1]));
+		return Write(argacc[0], Enum.Parse<Texture.Format>(argacc[1]));
 	}
-	public static void Write(string input, Texture.Format format) {
+	public static string Write(string input, Texture.Format format) {
 		Source inst = null;
 		foreach (var type in Assembly.GetAssembly(typeof(Source)).GetTypes()) {
 			if (!type.IsAssignableTo(typeof(Source)))
@@ -82,11 +83,14 @@ public class Convert {
 		}
 		if (inst is null) {
 			Console.WriteLine($"could not find converter source for '{input.Split('.').Last()}'");
-			return;
+			return null;
 		}
 		inst.Read(input);
 		var t = inst.CreateTexture(format);
-		using var f = new BinaryWriter(File.OpenWrite($"{input.Split('.').First()}.btex"));
+		var path = $"{input.Split('.').First()}.btex";
+		if (File.Exists(path))
+			File.Delete(path);
+		using var f = new BinaryWriter(File.OpenWrite(path));
 		Header(f, t);
 		switch (t.Type) {
 			case Texture.Format.rgba8888:
@@ -102,6 +106,7 @@ public class Convert {
 				WriteUintData(f, t, inst.LoadUint(1), 1);
 				break;
 		}
+		return path;
 	}
 	private static void Header(BinaryWriter f, Texture t) {
 		f.Write("btex".ToArray());
