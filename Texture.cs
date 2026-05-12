@@ -40,15 +40,11 @@ public partial class Texture {
 	public Vector2 Size => new(Width, Height);
 	public uint Depth;
 
-	private static int GetChannelCount(Format f) {
-		switch (f) {
-			case Format.rgba8888:
-				return 4;
-			case Format.rgb888:
-				return 3;
-		}
-		return 1;
-	}
+	private static int GetChannelCount(Format f) => f switch {
+		Format.rgba8888 => 4,
+		Format.rgb888 => 3,
+		_ => 1,
+	};
 	protected void ReadHeader(BinaryReader r) {
 		r.ReadBytes(4); //btex
 		Type = (Format)r.ReadByte();
