@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TinyEXR.NET" Version="0.3.11" />
+    <PackageReference Include="TargaSharp" Version="0.1.0" />
+    <PackageReference Include="TinyEXR.NET" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

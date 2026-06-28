@@ -1,16 +1,26 @@
 ﻿namespace btex;
 
-using TinyEXR;
-
-[Convert.Association(["exr"])]
-public class OpenEXR : Convert.Source {
+[Convert.Association(["tga"])]
+public class Targa : Convert.Source {
 	private float[] Data;
 
 	public override void Read(string path) {
-		Exr.LoadEXR(path, out Data, out var w, out var h);
-		Width = (ushort)w;
-		Height = (ushort)h;
+		var tga = new TargaSharp.Targa(path);
+		Width = tga.Width;
+		Height = tga.Height;
 		Depth = 1;
+		Data = new float[Width * Height * Depth * 4];
+		var w = 0;
+		var bmp = tga.ToBitmap(true);
+		for (var x = 0; x < Width; x++) {
+			for (var y = 0; y < Height; y++) {
+				var c = bmp.GetPixel(x, y);
+				Data[w++] = c.R;
+				Data[w++] = c.G;
+				Data[w++] = c.B;
+				Data[w++] = c.A;
+			}
+		}
 	}
 	public override byte[] LoadByte(int channels) {
 		var load = new byte[Width * Height * channels];
