@@ -2,19 +2,21 @@
 
 [Convert.Association(["tga"])]
 public class Targa : Convert.Source {
-	private float[] Data;
+	private byte[] Data;
 
 	public override void Read(string path) {
 		var tga = new TargaSharp.Targa(path);
 		Width = tga.Width;
 		Height = tga.Height;
 		Depth = 1;
-		Data = new float[Width * Height * Depth * 4];
+		Data = new byte[Width * Height * Depth * 4];
 		var w = 0;
 		var bmp = tga.ToBitmap(true);
-		for (var x = 0; x < Width; x++) {
-			for (var y = 0; y < Height; y++) {
-				var c = bmp.GetPixel(x, y);
+		for (var y = 0; y < Height; y++) {
+			for (var x = 0; x < Width; x++) {
+				var c = bmp.GetPixel(x, Width - y - 1);
+				if (x == 0 && y == 0)
+					Console.WriteLine(c.R);
 				Data[w++] = c.R;
 				Data[w++] = c.G;
 				Data[w++] = c.B;
@@ -28,7 +30,7 @@ public class Targa : Convert.Source {
 		var ch = 0;
 		foreach (var pixel in Data) {
 			if (ch < channels)
-				load[loadw++] = (byte)(pixel * byte.MaxValue);
+				load[loadw++] = pixel;
 			ch++;
 			if (ch > 3)
 				ch = 0;
@@ -36,16 +38,6 @@ public class Targa : Convert.Source {
 		return load;
 	}
 	public override uint[] LoadUint(int channels) {
-		var load = new uint[Width * Height * channels];
-		var loadw = 0;
-		var ch = 0;
-		foreach (var pixel in Data) {
-			if (ch < channels)
-				load[loadw++] = (uint)(pixel * uint.MaxValue);
-			ch++;
-			if (ch > 3)
-				ch = 0;
-		}
-		return load;
+		throw new("uint tga unsupported");
 	}
 }

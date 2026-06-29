@@ -153,6 +153,8 @@ public class Convert {
 				}
 			}
 		}
+		if (last != -1)
+			f.Write(run);
 	}
 	public static void WriteUintData(BinaryWriter f, Texture t, uint[] data, int channels) {
 		var read = 0;
